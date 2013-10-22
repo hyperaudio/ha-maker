@@ -1,0 +1,84 @@
+<html>
+<head>
+	<script>
+	window.onload = function () {
+		var timePoint = 0;
+		var chunkTime = 4;
+		var inactivityTime = 2;
+		var lastActivity = Date.now();
+
+		var v = document.getElementById("myVideo");
+		var p = document.getElementById("pbr");
+		var cp = document.getElementById("currentPbr");
+		var c = document.getElementById("cht");
+		var cc = document.getElementById("currentCht");
+		var content = document.getElementById("content");
+		var i = document.getElementById("inactivity");
+		var ic = document.getElementById("currentInactivity");
+		//v.playbackRate = 0.5;
+		v.addEventListener('timeupdate',function(){
+			//console.log(v.currentTime);
+			var secs = Math.floor(v.currentTime);
+			if (secs%chunkTime == 0 && timePoint != secs) {
+				v.pause();
+				timePoint = secs;
+				//setTimeout(function(){v.play()},chunkTime*1000);
+			}
+		},false);
+
+		setInterval(function() {
+			console.log(Date.now() - lastActivity);
+			if (Date.now() - lastActivity > (1000*inactivityTime)) {
+				v.play();
+			}
+		}, 1000);
+
+		p.addEventListener('input',function(){
+			cp.innerHTML = p.value;
+			v.playbackRate = p.value;
+		},false);
+
+		c.addEventListener('input',function(){
+			cc.innerHTML = c.value;
+			chunkTime = c.value;
+		},false);
+
+		i.addEventListener('input',function(){
+			ic.innerHTML = i.value;
+			inactivityTime = i.value;
+		},false);
+
+		content.addEventListener('input',function(){
+			lastActivity = Date.now();
+			//console.log(thisActivity);
+		},false);
+
+	};
+	</script>
+</head>
+<body>
+
+<div style="width:640px; height:360; margin: 0 auto; margin-bottom:14em">
+<video id="myVideo" controls>
+	<source src="http://hyperaud.io/video/obama-responds.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+	<source src="http://hyperaud.io/video/obama-responds.webm" type='video/webm; codecs="vp8, vorbis"' />
+</video>
+<form>
+<p></p>
+<input id="pbr" type="range" value="1" min="0.5" max="4" step="0.1" style="width:100%">
+<p>Playback Rate <span id="currentPbr">1</span></p>
+<input id="cht" type="range" value="4" min="0" max="10" step="1" style="width:100%">
+<p>Chunk Length (seconds) <span id="currentCht">4</span></p>
+<input id="inactivity" type="range" value="2" min="1" max="10" step="1" style="width:100%">
+<p>Inactivity Cue (seconds)<span id="currentInactivity">2</span></p>
+</form>
+</div>
+
+
+<div id="content" contenteditable="true"></div>
+<style scoped>
+  [contenteditable="true"] { padding: 10px; outline: 2px dashed #CCC; }
+  [contenteditable="true"]:hover { outline: 2px dashed #0090D2; }
+</style>
+</body>
+</html>
