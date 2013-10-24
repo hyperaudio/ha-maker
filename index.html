@@ -1,5 +1,26 @@
+<!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8" />
+	<title>Transcript demo</title>
+	<link rel="stylesheet" type="text/css" href="css/hyperaudio.transcript.css" />
+	<link rel="stylesheet" type="text/css" href="css/hyperaudio.player.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+	<style>
+	#content {
+		font-size: 1.3em;
+		height: 16em;
+	}
+
+	#header {
+		background: #0090D2;
+	}
+
+	#save-button {
+		background: #0060B2;
+	}
+	</style>
 	<script>
 	window.onload = function () {
 		var timePoint = 0;
@@ -57,8 +78,13 @@
 	</script>
 </head>
 <body>
+<div id="wrapper">
+	<header id="header">
+		<h1>Hyperaudio Maker</h1>
 
-<div style="width:640px; height:360; margin: 0 auto; margin-bottom:14em">
+		<div id="save-button">6</div>
+	</header>
+<div style="width:640px; height:360; margin: 0 auto; margin-bottom:64px; margin-top:64px">
 <video id="myVideo" controls>
 	<source src="http://hyperaud.io/video/obama-responds.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
 	<source src="http://hyperaud.io/video/obama-responds.webm" type='video/webm; codecs="vp8, vorbis"' />
@@ -76,9 +102,16 @@
 
 
 <div id="content" contenteditable="true"></div>
+
+</div>
+
 <style scoped>
   [contenteditable="true"] { padding: 10px; outline: 2px dashed #CCC; }
   [contenteditable="true"]:hover { outline: 2px dashed #0090D2; }
 </style>
+
+
+
+<script type="text/javascript" src="js/utility.xhr.js"></script>
 </body>
 </html>
