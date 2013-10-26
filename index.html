@@ -86,8 +86,8 @@
 	</header>
 <div style="width:640px; height:360; margin: 0 auto; margin-bottom:64px; margin-top:64px">
 <video id="myVideo" controls>
-	<source src="http://hyperaud.io/video/obama-responds.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
-	<source src="http://hyperaud.io/video/obama-responds.webm" type='video/webm; codecs="vp8, vorbis"' />
+  <!-- <source src="http://hyperaud.io/video/obama-responds.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' /> -->
+  <!-- <source src="http://hyperaud.io/video/obama-responds.webm" type='video/webm; codecs="vp8, vorbis"' /> -->
 </video>
 <form>
 <p></p>
@@ -105,13 +105,116 @@
 
 </div>
 
+<button id='save'>SAVE</button>
+
 <style scoped>
   [contenteditable="true"] { padding: 10px; outline: 2px dashed #CCC; }
   [contenteditable="true"]:hover { outline: 2px dashed #0090D2; }
 </style>
 
 
+<script src="http://code.jquery.com/jquery-2.0.3.js"></script>
+<!-- <script type="text/javascript" src="js/utility.xhr.js"></script> -->
+<script type="text/javascript" src="lib/purl.js"></script>
 
-<script type="text/javascript" src="js/utility.xhr.js"></script>
+<script>
+var mediaObject;
+var mediaID = purl(document.location.href).param('m');
+
+$.get('http://data.hyperaud.io/media/' + mediaID, function(m) {
+  mediaObject = m;
+  console.log(m);
+  var media = "http://data.hyperaud.io/" + m.owner + "/" + m.meta.filename;
+  $("#myVideo").append('<source src="' + media + '" type="video/mp4" />');
+  $("#myVideo").append('<source src="' + media.replace('mp4', 'webm') + '" type="video/mp4" />');
+});
+
+var user;
+function whoami(callback) {
+  $.ajax('http://data.hyperaud.io/whoami', {
+    type: "GET",
+   contentType: "application/json; charset=utf-8",
+   success: function(whoami) {
+      if (whoami.user) {
+        // logged in
+        // alert('logged in');
+        user = whoami.user;
+      } else {
+        // not logged in
+        // alert('NOT logged in');
+        user = null;
+      }
+      if (callback) callback();
+    },
+    xhrFields: {
+      withCredentials: true
+    },
+      crossDomain: true 
+  });
+}
+
+var transcriptObject = null;
+$('#save-button').click(function() {
+  whoami(function() {
+    if (user && user.username) {
+      //
+      if (transcriptObject) {
+          $.ajax( 'http://data.hyperaud.io/' + user.username + '/transcripts/' + transcriptObject._id, {
+            type: "PUT",
+            data: {
+              _id: transcriptObject._id,
+              label:  'Transcript for ' + mediaObject.label,
+              type: 'text',
+              sort: 0,
+              owner: user.username,
+              content: $('#content').text(),
+              media: mediaID
+            },
+            success: function(data) {
+              transcriptObject = data;
+              console.log(data);
+              alert('Saved!');
+            },
+            error: function() {
+              alert('Save Error');
+            },
+            xhrFields: {
+              withCredentials: true
+            },
+            crossDomain: true
+          });
+      } else {
+        $.ajax( 'http://data.hyperaud.io/' + user.username + '/transcripts', {
+          type: "POST",
+          data: {
+            label:  'Transcript for ' + mediaObject.label,
+            type: 'text',
+            sort: 0,
+            owner: user.username,
+            content: $('#content').text(),
+            media: mediaID
+          },
+          success: function(data) {
+            transcriptObject = data;
+            console.log(data);
+            alert('Created!');
+          },
+          error: function() {
+            alert('Save Error');
+          },
+          xhrFields: {
+            withCredentials: true
+          },
+          crossDomain: true
+        });
+      }
+      //
+    } else {
+      alert('not logged in');
+    }
+  });
+});
+</script>
+
 </body>
 </html>
