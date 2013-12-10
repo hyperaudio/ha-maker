@@ -122,9 +122,22 @@ var mediaObject;
 var mediaID = purl(document.location.href).param('m');
 console.log(mediaID);
 
+var staticUrl = false;
+
 $.get('http://api.hyperaud.io/media/' + mediaID, function(mediaObject) {
-  $("#myVideo").append('<source src="' + mediaObject.source.mp4.url + '" type="video/mp4" />');
-  $("#myVideo").append('<source src="' + mediaObject.source.webm.url + '" type="video/webm" />');
+  if (mediaObject.source.mp4) {
+    $("#myVideo").append('<source src="' + mediaObject.source.mp4.url + '" type="video/mp4" />');
+    staticUrl = true;
+  }
+
+  if (mediaObject.source.webm) {
+    $("#myVideo").append('<source src="' + mediaObject.source.webm.url + '" type="video/webm" />');
+    staticUrl = true;
+  }
+
+  if (staticUrl == false) {
+    alert("do the YT thang");
+  }
 });
 
 var user;
