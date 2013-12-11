@@ -42,33 +42,24 @@ p {
 	background-color:#fff;
 }
 
-.transcript-video,
-.stage-video {
+.transcript-video {
+	position:relative; /* The GUI needs a relative or absolute reference */
 	width:480px;
 	height:270px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-.transcript-video {
-	position:absolute;
-	top:0;
-	left:0;
-}
-
-.stage-video {
-	position:absolute;
-	top:0;
-	left:480px;
-}
 
 /* Following rule only required when native controls being used.
  * The Player CSS deals with this when its GUI is inserted.
  */
-.transcript-video video,
-.stage-video video {
+/*
+.transcript-video video{
 	width:100%;
 	height:100%;
 }
-
+*/
 .transcript {
 	position: absolute;
 	top: 300px;
@@ -77,9 +68,9 @@ p {
 	padding: 2em 20px;
 	line-height: 1.8em;
 	font-size: 1.2em;
-	width: 438px;
+	width: 920px;
 	overflow: auto;
-	color: #444;
+	color: #000;
 	border-right: 2px solid #ccc;
 
 	border-top: 1px solid #eee;
@@ -168,126 +159,4 @@ p {
 	border-color: #cee #fff #fff #fff;
 	border-style: solid;
 	text-shadow: 0 1px 0 #fff;
-}
-
-.stage {
-	position: absolute;
-	top: 300px;
-	bottom: 0;
-	right: 0;
-	padding: 10px;
-	font-size: 1.2em;
-	width: 458px;
-	overflow: auto;
-	border-left: 2px solid #ccc;
-
-	border-top: 1px solid #eee;
-
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.stage section {
-	position: relative;
-	margin-bottom: 10px;
-	padding: 10px;
-}
-
-.stage .item {
-	border: 2px solid #63B027;
-	line-height: 140%;
-	background: #C0E7A1;
-	font-size: 1.1em;
-	box-shadow: 4px 4px 0 #eee;
-	cursor: default;
-}
-
-.stage.dragdrop .item * {
-	pointer-events: none;	/* ease the drag n drop */
-}
-
-.stage .item.edit {
-	border: 2px dashed #c00;
-	background: #fff;
-	box-shadow: none;
-}
-
-.stage .item.edit .actions {
-	top: -99999px !important;
-}
-
-.stage .item.edit a {
-	position: relative;
-	border-right: 2px solid transparent;
-	display: inline-block;
-	padding-right: 3px;
-	margin-right: 3px;
-}
-
-.stage .item.edit a:hover {
-	border-right: 2px solid #a00;
-}
-
-.stage .item.edit a:hover:after {
-	position: absolute;
-	top: -18px;
-	right: -11px;
-	font-family: 'fontello';
-	content: 'b';
-	color: #a00;
-	font-size: 1.4em;
-	text-shadow: 0 2px 0 #fff, 0 -2px 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff;
-}
-
-.stage .actions {
-	position: absolute;
-	top: -99999px;
-	right: 0;
-	background: #63B027;
-	width: 36px;
-	height: 36px;
-	text-align: center;
-	line-height: 34px;
-	font-size: 1.2em;
-	color: #fff;
-}
-
-.stage .actions:after {
-	font-family: 'fontello';
-	content: 'y';
-}
-
-.stage .item:hover .actions {
-	top: 0px;
-}
-
-.stage .placeholder {
-	border: 2px solid #ccc;
-	background: #eee;
-	height: 2em;
-}
-
-.stage p:last-child {
-	margin-bottom:0;
-}
-.draggable {
-	opacity: 0.8;
-	position: absolute;
-	z-index: 1000;
-	width: 400px;
-	max-height: 5em;
-	overflow: hidden;
-	background: #C0E7A1;
-	border: 2px solid #fff;
-	padding: 6px 10px;
-	line-height: 1.4em;
-	font-size: 1.3em;
-	pointer-events: none;
-}
-.draggable p {
-	margin-bottom:0;
 }

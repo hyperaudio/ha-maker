@@ -1,96 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8" />
-	<title>Transcript demo</title>
-	<link rel="stylesheet" type="text/css" href="css/hyperaudio.transcript.css" />
-	<link rel="stylesheet" type="text/css" href="css/hyperaudio.player.css" />
-	<link rel="stylesheet" type="text/css" href="css/style.css" />
-	<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
-	<style>
-	#content {
-		font-size: 1.3em;
-		height: 16em;
-	}
+  <meta charset="utf-8" />
+  <title>Transcript demo</title>
+  <link rel="stylesheet" type="text/css" href="css/hyperaudio.transcript.css" />
+  <link rel="stylesheet" type="text/css" href="css/hyperaudio.player.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+  <style>
+  #content {
+    font-size: 1.3em;
+    height: 16em;
+  }
 
-	#header {
-		background: #0090D2;
-	}
+  #header {
+    background: #0090D2;
+  }
 
-	#save-button {
-		background: #0060B2;
-	}
-	</style>
-	<script>
-	window.onload = function () {
-		var timePoint = 0;
-		var chunkTime = 4;
-		var inactivityTime = 2;
-		var lastActivity = Date.now();
+  #save-button {
+    background: #0060B2;
+  }
 
-		var v = document.getElementById("myVideo");
-		var p = document.getElementById("pbr");
-		var cp = document.getElementById("currentPbr");
-		var c = document.getElementById("cht");
-		var cc = document.getElementById("currentCht");
-		var content = document.getElementById("content");
-		var i = document.getElementById("inactivity");
-		var ic = document.getElementById("currentInactivity");
-		//v.playbackRate = 0.5;
-		v.addEventListener('timeupdate',function(){
-			//console.log(v.currentTime);
-			var secs = Math.floor(v.currentTime);
-			if (secs%chunkTime == 0 && timePoint != secs) {
-				v.pause();
-				timePoint = secs;
-				//setTimeout(function(){v.play()},chunkTime*1000);
-			}
-		},false);
+  #source-video {
+    margin-top: 50px;
+  }
 
-		setInterval(function() {
-			console.log(Date.now() - lastActivity);
-			if (Date.now() - lastActivity > (1000*inactivityTime)) {
-				v.play();
-			}
-		}, 1000);
-
-		p.addEventListener('input',function(){
-			cp.innerHTML = p.value;
-			v.playbackRate = p.value;
-		},false);
-
-		c.addEventListener('input',function(){
-			cc.innerHTML = c.value;
-			chunkTime = c.value;
-		},false);
-
-		i.addEventListener('input',function(){
-			ic.innerHTML = i.value;
-			inactivityTime = i.value;
-		},false);
-
-		content.addEventListener('input',function(){
-			lastActivity = Date.now();
-			//console.log(thisActivity);
-		},false);
-
-	};
-	</script>
+  .controls {
+    padding-top:20px;
+  }
+  </style>
 </head>
 <body>
 <div id="wrapper">
-	<header id="header">
-		<h1>Hyperaudio Maker</h1>
+  <header id="header">
+    <h1>Hyperaudio Maker</h1>
 
-		<div id="save-button">6</div>
-	</header>
-<div style="width:640px; height:360; margin: 0 auto; margin-bottom:64px; margin-top:64px">
-<video id="myVideo" controls>
-  <!-- <source src="http://hyperaud.io/video/obama-responds.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' /> -->
-  <!-- <source src="http://hyperaud.io/video/obama-responds.webm" type='video/webm; codecs="vp8, vorbis"' /> -->
-</video>
-<form>
-<p></p>
+    <div id="save-button">6</div>
+  </header>
+<div>
+
+<div id="source-video" class="transcript-video"></div>
+
+<form class="controls">
 <input id="pbr" type="range" value="1" min="0.5" max="4" step="0.1" style="width:100%">
 <p>Playback Rate <span id="currentPbr">1</span></p>
 <input id="cht" type="range" value="4" min="0" max="10" step="1" style="width:100%">
@@ -118,29 +69,118 @@
 <script type="text/javascript" src="js/hyperaudio.js"></script>
 
 <script>
+
+function main() {
+  var timePoint = 0;
+  var chunkTime = 4;
+  var inactivityTime = 2;
+  var lastActivity = Date.now();
+  console.log("onload");
+
+    //var v = document.getElementById("myVideo");
+  var v = document.getElementsByTagName("video")[0];
+  console.dir(v);
+  var p = document.getElementById("pbr");
+  var cp = document.getElementById("currentPbr");
+  var c = document.getElementById("cht");
+  var cc = document.getElementById("currentCht");
+  var content = document.getElementById("content");
+  var i = document.getElementById("inactivity");
+  var ic = document.getElementById("currentInactivity");
+    //v.playbackRate = 0.5;
+  v.addEventListener('timeupdate',function(){
+    //console.log(v.currentTime);
+    var secs = Math.floor(v.currentTime);
+    if (secs%chunkTime == 0 && timePoint != secs) {
+      v.pause();
+      timePoint = secs;
+      //setTimeout(function(){v.play()},chunkTime*1000);
+    }
+  },false);
+
+  setInterval(function() {
+    console.log(Date.now() - lastActivity);
+    if (Date.now() - lastActivity > (1000*inactivityTime)) {
+      v.play();
+    }
+  }, 1000);
+
+  p.addEventListener('input',function(){
+    cp.innerHTML = p.value;
+    v.playbackRate = p.value;
+  },false);
+
+  c.addEventListener('input',function(){
+    cc.innerHTML = c.value;
+    chunkTime = c.value;
+  },false);
+
+  i.addEventListener('input',function(){
+    ic.innerHTML = i.value;
+    inactivityTime = i.value;
+  },false);
+
+  content.addEventListener('input',function(){
+    lastActivity = Date.now();
+    //console.log(thisActivity);
+  },false);
+
+};
+
 var mediaObject;
 var mediaID = purl(document.location.href).param('m');
 console.log(mediaID);
 
 var staticUrl = false;
 
+var myPlayer = null;
+var myMp4 = "";
+var myWebm = "";
+
 $.get('http://api.hyperaud.io/media/' + mediaID, function(mediaObject) {
   if (mediaObject.source.mp4) {
-    $("#myVideo").append('<source src="' + mediaObject.source.mp4.url + '" type="video/mp4" />');
+    //myPlayer.options.media.mp4 = mediaObject.source.mp4.url;
+    myMp4 = mediaObject.source.mp4.url;
     staticUrl = true;
   }
 
   if (mediaObject.source.webm) {
-    $("#myVideo").append('<source src="' + mediaObject.source.webm.url + '" type="video/webm" />');
+    //myPlayer.options.media.webm = mediaObject.source.webm.url;
+    myWebm = mediaObject.source.webm.url;
     staticUrl = true;
   }
 
   if (staticUrl == false) {
-    alert("do the YT thang");
+    console.log("YOUTUBE! "+mediaObject.source.youtube.url);
+    myPlayer = HA.Player({
+      target: "#source-video",
+      media: {
+        youtube: mediaObject.source.youtube.url,
+      },
+      gui: {
+        navigation: false,
+        fullscreen: false
+      }
+    });
+  } else {
+    myPlayer = HA.Player({
+      target: "#source-video",
+      media: {
+        mp4: myMp4,
+        webm: myWebm
+      },
+      gui: {
+        navigation: false,
+        fullscreen: false
+      }
+    });
   }
+  
+  main();
 });
 
 var user;
+
 function whoami(callback) {
   $.ajax('http://api.hyperaud.io/whoami', {
     type: "GET",

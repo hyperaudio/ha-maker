@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+</head>
+<body>
+<div id="wrapper">
+  <div id="source-video" class="transcript-video"></div>
+</div>
+  
+<script type="text/javascript" src="https://rawgithub.com/hyperaudio-dev/hyperaudio/master/build/hyperaudio.js"></script>
+
+<script type="text/javascript">
+
+var ht = {
+  init: function() {
+    this.player = HA.Player({
+      target: "#source-video",
+      media: {
+        mp4: "http://hyperaud.io/video/internetindians.mp4",
+        webm:"http://hyperaud.io/video/internetindians.webm"
+      },
+      gui: {
+        navigation: false,
+        fullscreen: false
+      }
+    });
+  }
+}
+
+window.onload = function(){
+  ht.init();
+}
+
+
+</script>
+
+</body>
+</html>
