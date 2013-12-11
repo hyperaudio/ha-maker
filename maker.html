@@ -26,7 +26,7 @@
   }
 
   .controls {
-    padding-top:20px;
+    padding:20px;
   }
 
   div.hyperaudio-player-progress {
@@ -78,187 +78,271 @@
 
 <script>
 
-function main() {
+$( document ).ready(function() {
 
-  console.dir(myPlayer);
+  function main(myPlayer) {
 
-  var timePoint = 0;
-  var chunkTime = 4;
-  var inactivityTime = 2;
-  var lastActivity = Date.now();
-  console.log("onload");
+    var timePoint = 0;
+    var chunkTime = 4;
+    var inactivityTime = 2;
+    var lastActivity = Date.now();
 
-    //var v = document.getElementById("myVideo");
-  var v = document.getElementsByTagName("video")[0];
-  console.dir(v);
-  var p = document.getElementById("pbr");
-  var cp = document.getElementById("currentPbr");
-  var c = document.getElementById("cht");
-  var cc = document.getElementById("currentCht");
-  var content = document.getElementById("content");
-  var i = document.getElementById("inactivity");
-  var ic = document.getElementById("currentInactivity");
+    var v = document.getElementsByTagName("video")[0];
+    var p = document.getElementById("pbr");
+    var cp = document.getElementById("currentPbr");
+    var c = document.getElementById("cht");
+    var cc = document.getElementById("currentCht");
+    var content = document.getElementById("content");
+    var i = document.getElementById("inactivity");
+    var ic = document.getElementById("currentInactivity");
 
-  var activityPause = false;
+    var activityPause = false;
 
-  myPlayer.addEventListener('timeupdate',function(){
-    console.log("tick");
-    console.log(this.currentTime);
-    var secs = Math.floor(this.currentTime);
-    if (secs%chunkTime == 0 && timePoint != secs) {
-      myPlayer.pause();
-      timePoint = secs;
-      activityPause = true;
-      //setTimeout(function(){v.play()},chunkTime*1000);
+    myPlayer.addEventListener('timeupdate',function(){
+      var secs = Math.floor(this.currentTime);
+      if (secs%chunkTime == 0 && timePoint != secs) {
+        myPlayer.pause();
+        timePoint = secs;
+        activityPause = true;
+        //setTimeout(function(){v.play()},chunkTime*1000);
+      }
+    },false);
+
+
+    myPlayer.addEventListener('pause',function(){
+      if (!activityPause) {
+        stopSampling();
+      }
+    },false);
+
+    myPlayer.addEventListener('play',function(){
+      startSampling();
+    },false);
+
+    var sampler;
+
+    function startSampling() {
+      clearInterval(sampler);
+      sampler = setInterval(function() {
+        //console.log("sampling - "+Date.now() - lastActivity);
+        if (Date.now() - lastActivity > (1000*inactivityTime)) {
+          myPlayer.play();
+          activityPause = false;
+        }
+      }, 1000);
     }
-  },false);
 
-
-  myPlayer.addEventListener('pause',function(){
-    console.log("PAUSE");
-    if (!activityPause) {
-      console.log("MANUAL PAUSE");
-      stopSampling();
+    function stopSampling() {
+      clearInterval(sampler);
     }
-  },false);
 
-  myPlayer.addEventListener('play',function(){
-    console.log("PLAY");
     startSampling();
-  },false);
 
-  var sampler;
+    // wire playbackRate directly into the video element
+    // (won't work for YouTube)
 
-  function startSampling() {
-    clearInterval(sampler);
-    sampler = setInterval(function() {
-      console.log("sampling - "+Date.now() - lastActivity);
-      if (Date.now() - lastActivity > (1000*inactivityTime)) {
-        myPlayer.play();
-        activityPause = false;
-      }
-    }, 1000);
-  }
+    p.addEventListener('input',function(){
+      cp.innerHTML = p.value;
+      v.playbackRate = p.value;
+    },false);
 
-  function stopSampling() {
-    clearInterval(sampler);
-  }
+    c.addEventListener('input',function(){
+      cc.innerHTML = c.value;
+      chunkTime = c.value;
+    },false);
 
-  startSampling();
+    i.addEventListener('input',function(){
+      ic.innerHTML = i.value;
+      inactivityTime = i.value;
+    },false);
 
-  // wire playbackRate directly into the video element
-  // (won't work for YouTube)
+    content.addEventListener('input',function(){
+      lastActivity = Date.now();
+    },false);
 
-  p.addEventListener('input',function(){
-    cp.innerHTML = p.value;
-    v.playbackRate = p.value;
-  },false);
+  };
 
-  c.addEventListener('input',function(){
-    cc.innerHTML = c.value;
-    chunkTime = c.value;
-  },false);
+  var mp4Url = purl(document.location.href).param('mp4');
+  var webmUrl = purl(document.location.href).param('webm');
+  var ytUrl = purl(document.location.href).param('yt');
 
-  i.addEventListener('input',function(){
-    ic.innerHTML = i.value;
-    inactivityTime = i.value;
-  },false);
+  var sourceTarget = "#source-video";
 
-  content.addEventListener('input',function(){
-    lastActivity = Date.now();
-  },false);
-
-};
-
-var mediaObject;
-var mediaID = purl(document.location.href).param('m');
-console.log(mediaID);
-
-var staticUrl = false;
-
-var myPlayer = null;
-var myMp4 = "";
-var myWebm = "";
-
-$.get('http://api.hyperaud.io/media/' + mediaID, function(mediaObject) {
-  if (mediaObject.source.mp4) {
-    myMp4 = mediaObject.source.mp4.url;
-    staticUrl = true;
-  }
-
-  if (mediaObject.source.webm) {
-    myWebm = mediaObject.source.webm.url;
-    staticUrl = true;
-  }
-
-  if (!staticUrl) {
-    myPlayer = HA.Player({
-      target: "#source-video",
-      media: {
-        youtube: mediaObject.source.youtube.url,
-      },
-      gui: {
-        navigation: false,
-        fullscreen: false
-      }
-    });
+  if (mp4Url || webmUrl || ytUrl) {
+    getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
   } else {
+    getHAMedia(sourceTarget);
+  }
 
-    // display playbackrate controls
+  function getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl) {
+
+    var staticUrl = false;
+
+    var myPlayer = null;
+    var myMp4 = "";
+    var myWebm = "";
+
+
+    if (mp4Url) {
+      myMp4 = mp4Url;
+      staticUrl = true;
+    }
+
+    if (webmUrl) {
+      myWebm = webmUrl;
+      staticUrl = true;
+    }
+
+    if (!staticUrl) {
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          youtube: ytUrl,
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+
+    } else {
+
+      // display playbackrate controls
+      displayPbr();
+
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          mp4: myMp4,
+          webm: myWebm
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+    }
+    main(myPlayer); 
+  }
+
+  function getHAMedia(sourceTarget) {
+
+    var mediaID = purl(document.location.href).param('m');
+
+    var staticUrl = false;
+
+    var myPlayer = null;
+    var myMp4 = "";
+    var myWebm = "";
+
+    $.get('http://api.hyperaud.io/media/' + mediaID, function(mediaObject) {
+      if (mediaObject.source.mp4) {
+        myMp4 = mediaObject.source.mp4.url;
+        staticUrl = true;
+      }
+
+      if (mediaObject.source.webm) {
+        myWebm = mediaObject.source.webm.url;
+        staticUrl = true;
+      }
+
+      if (!staticUrl) {
+        myPlayer = HA.Player({
+          target: sourceTarget,
+          media: {
+            youtube: mediaObject.source.youtube.url,
+          },
+          gui: {
+            navigation: false,
+            fullscreen: false
+          }
+        });
+
+      } else {
+
+        // display playbackrate controls
+        displayPbr();
+
+        myPlayer = HA.Player({
+          target: sourceTarget,
+          media: {
+            mp4: myMp4,
+            webm: myWebm
+          },
+          gui: {
+            navigation: false,
+            fullscreen: false
+          }
+        });
+      }
+      main(myPlayer);
+    }); 
+  }
+
+  function displayPbr() {
     document.getElementById("pbr").style.display = "block";
     document.getElementById("pbrLabel").style.display = "block";
+  }
 
-    myPlayer = HA.Player({
-      target: "#source-video",
-      media: {
-        mp4: myMp4,
-        webm: myWebm
+  var user;
+
+  function whoami(callback) {
+    $.ajax('http://api.hyperaud.io/whoami', {
+      type: "GET",
+     contentType: "application/json; charset=utf-8",
+     success: function(whoami) {
+        if (whoami.user) {
+          // logged in
+          // alert('logged in');
+          user = whoami.user;
+        } else {
+          // not logged in
+          // alert('NOT logged in');
+          user = null;
+        }
+        if (callback) callback();
       },
-      gui: {
-        navigation: false,
-        fullscreen: false
-      }
+      xhrFields: {
+        withCredentials: true
+      },
+        crossDomain: true 
     });
   }
-  
-  main();
-});
 
-var user;
-
-function whoami(callback) {
-  $.ajax('http://api.hyperaud.io/whoami', {
-    type: "GET",
-   contentType: "application/json; charset=utf-8",
-   success: function(whoami) {
-      if (whoami.user) {
-        // logged in
-        // alert('logged in');
-        user = whoami.user;
-      } else {
-        // not logged in
-        // alert('NOT logged in');
-        user = null;
-      }
-      if (callback) callback();
-    },
-    xhrFields: {
-      withCredentials: true
-    },
-      crossDomain: true 
-  });
-}
-
-var transcriptObject = null;
-$('#save-button').click(function() {
-  whoami(function() {
-    if (user && user.username) {
-      //
-      if (transcriptObject) {
-          $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts/' + transcriptObject._id, {
-            type: "PUT",
+  var transcriptObject = null;
+  $('#save-button').click(function() {
+    whoami(function() {
+      if (user && user.username) {
+        //
+        if (transcriptObject) {
+            $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts/' + transcriptObject._id, {
+              type: "PUT",
+              data: {
+                _id: transcriptObject._id,
+                label:  'Transcript for ' + mediaObject.label,
+                type: 'text',
+                sort: 0,
+                owner: user.username,
+                content: $('#content').text(),
+                media: mediaID
+              },
+              success: function(data) {
+                transcriptObject = data;
+                console.log(data);
+                alert('Saved!');
+              },
+              error: function() {
+                alert('Save Error');
+              },
+              xhrFields: {
+                withCredentials: true
+              },
+              crossDomain: true
+            });
+        } else {
+          $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts', {
+            type: "POST",
             data: {
-              _id: transcriptObject._id,
               label:  'Transcript for ' + mediaObject.label,
               type: 'text',
               sort: 0,
@@ -269,7 +353,7 @@ $('#save-button').click(function() {
             success: function(data) {
               transcriptObject = data;
               console.log(data);
-              alert('Saved!');
+              alert('Created!');
             },
             error: function() {
               alert('Save Error');
@@ -279,35 +363,12 @@ $('#save-button').click(function() {
             },
             crossDomain: true
           });
+        }
+        //
       } else {
-        $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts', {
-          type: "POST",
-          data: {
-            label:  'Transcript for ' + mediaObject.label,
-            type: 'text',
-            sort: 0,
-            owner: user.username,
-            content: $('#content').text(),
-            media: mediaID
-          },
-          success: function(data) {
-            transcriptObject = data;
-            console.log(data);
-            alert('Created!');
-          },
-          error: function() {
-            alert('Save Error');
-          },
-          xhrFields: {
-            withCredentials: true
-          },
-          crossDomain: true
-        });
+        alert('not logged in');
       }
-      //
-    } else {
-      alert('not logged in');
-    }
+    });
   });
 });
 </script>
