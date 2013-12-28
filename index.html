@@ -78,6 +78,9 @@
 
 <script>
 
+var mediaID;
+var mediaObject;
+
 $( document ).ready(function() {
 
   function main(myPlayer) {
@@ -225,8 +228,7 @@ $( document ).ready(function() {
     main(myPlayer); 
   }
 
-  var mediaID;
-  var mediaObject;
+
   
   function getHAMedia(sourceTarget) {
 
@@ -314,6 +316,7 @@ $( document ).ready(function() {
   }
 
   var transcriptObject = null;
+  
   $('#save-button').click(function() {
     whoami(function() {
       if (user) {
