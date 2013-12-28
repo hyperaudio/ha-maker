@@ -284,7 +284,7 @@ $( document ).ready(function() {
     document.getElementById("pbrLabel").style.display = "block";
   }
 
-  var user;
+  var user = null;
 
   function whoami(callback) {
     $.ajax('http://api.hyperaud.io/v1/whoami', {
@@ -312,7 +312,7 @@ $( document ).ready(function() {
   var transcriptObject = null;
   $('#save-button').click(function() {
     whoami(function() {
-      if (user && user.username) {
+      if (user) {
         //
         if (transcriptObject) {
             $.ajax( 'http://api.hyperaud.io/v1/' + user.username + '/transcripts/' + transcriptObject._id, {
