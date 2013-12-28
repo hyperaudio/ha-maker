@@ -225,9 +225,12 @@ $( document ).ready(function() {
     main(myPlayer); 
   }
 
+  var mediaID;
+  var mediaObject;
+  
   function getHAMedia(sourceTarget) {
 
-    var mediaID = purl(document.location.href).param('m');
+    mediaID = purl(document.location.href).param('m');
 
     var staticUrl = false;
 
@@ -235,7 +238,8 @@ $( document ).ready(function() {
     var myMp4 = "";
     var myWebm = "";
 
-    $.get('http://api.hyperaud.io/v1/media/' + mediaID, function(mediaObject) {
+    $.get('http://api.hyperaud.io/v1/media/' + mediaID, function(_mediaObject) {
+      mediaObject = _mediaObject;
       if (mediaObject.source.mp4) {
         myMp4 = mediaObject.source.mp4.url;
         staticUrl = true;
@@ -321,7 +325,7 @@ $( document ).ready(function() {
               dataType: "json",
               data: JSON.stringify({
                 _id: transcriptObject._id,
-                label:  '',//'Transcript for ' + mediaObject.label,
+                label:  'Transcript for ' + mediaObject.label,
                 type: 'text',
                 sort: 0,
                 owner: user.username,
@@ -347,9 +351,8 @@ $( document ).ready(function() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             data: JSON.stringify({
-              label:  '',//'Transcript for ' + mediaObject.label,
+              label:  'Transcript for ' + mediaObject.label,
               type: 'text',
-              sort: 0,
               owner: user.username,
               content: $('#content').text(),
               media: mediaID
