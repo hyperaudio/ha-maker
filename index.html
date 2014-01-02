@@ -359,9 +359,6 @@ $( document ).ready(function() {
     });
   }
 
-  // initial call of whoami so we have user for autosave
-  whoami();
-
   function updateTranscript(user) {
     $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
       type: "PUT",
@@ -417,8 +414,8 @@ $( document ).ready(function() {
       crossDomain: true
     });
   }
-  
-  $('#save-button').click(function() {
+
+  function save() {
     whoami(function() {
       if (user) {
         //
@@ -431,12 +428,16 @@ $( document ).ready(function() {
       } else {
         alert('not logged in');
       }
-    });
+    });    
+  }
+  
+  $('#save-button').click(function() {
+    save();
   });
 
   $('#content').autoSave(function() {
-    updateTranscript(user);
-    console.log('saved');
+    save();
+    console.log('auto-saved');
   }, 5000);
 
 });
