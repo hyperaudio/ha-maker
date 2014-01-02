@@ -80,7 +80,7 @@
 
 var mediaId;
 var mediaObject;
-var transId;
+var transcriptId;
 var transObjet;
 
 $( document ).ready(function() {
@@ -167,10 +167,10 @@ $( document ).ready(function() {
 
   };
 
-  transId = purl(document.location.href).param('t');
+  transcriptId = purl(document.location.href).param('t');
   var sourceTarget = "#source-video";
 
-  if (transId) {
+  if (transcriptId) {
     getHATranscribedMedia(); 
   }
   else
@@ -298,15 +298,15 @@ $( document ).ready(function() {
   }
 
   function getHATranscribedMedia() {
-    $.get('http://api.hyperaud.io/v1/transcripts/' + transId, function(_transObject) {
-      transObject = _transObject;
+    $.get('http://api.hyperaud.io/v1/transcripts/' + transcriptId, function(_transcriptObject) {
+      transcriptObject = _transcriptObject;
 
 
 
-      assignMediaObject(transObject.media);
+      assignMediaObject(transcriptObject.media);
 
-      if (transObject.content) {
-        $('#content').text(transObject.content);
+      if (transcriptObject.content) {
+        $('#content').text(transcriptObject.content);
       }
     }); 
   }
@@ -341,64 +341,70 @@ $( document ).ready(function() {
     });
   }
 
-  var transcriptObject = null;
+  function saveTranscript(user) {
+    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
+      type: "PUT",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        _id: transcriptObject._id,
+        label:  'Transcript for ' + mediaObject.label,
+        type: 'text',
+        sort: 0,
+        owner: user,
+        content: $('#content').text(),
+        media: mediaId
+      }),
+      success: function(data) {
+        transcriptObject = data;
+        console.log(data);
+        alert('Saved!');
+      },
+      error: function() {
+        alert('Save Error');
+      },
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    });
+  }
+
+  function updateTranscript(user) {
+    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts', {
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        label:  'Transcript for ' + mediaObject.label,
+        type: 'text',
+        owner: user,
+        content: $('#content').text(),
+        media: mediaId
+      }),
+      success: function(data) {
+        transcriptObject = data;
+        console.log(data);
+        alert('Created!');
+      },
+      error: function() {
+        alert('Save Error');
+      },
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    });
+  }
   
   $('#save-button').click(function() {
     whoami(function() {
       if (user) {
         //
         if (transcriptObject) {
-            $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
-              type: "PUT",
-              contentType: "application/json; charset=utf-8",
-              dataType: "json",
-              data: JSON.stringify({
-                _id: transcriptObject._id,
-                label:  'Transcript for ' + mediaObject.label,
-                type: 'text',
-                sort: 0,
-                owner: user,
-                content: $('#content').text(),
-                media: mediaId
-              }),
-              success: function(data) {
-                transcriptObject = data;
-                console.log(data);
-                alert('Saved!');
-              },
-              error: function() {
-                alert('Save Error');
-              },
-              xhrFields: {
-                withCredentials: true
-              },
-              crossDomain: true
-            });
+          saveTranscript(user);
         } else {
-          $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts', {
-            type: "POST",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: JSON.stringify({
-              label:  'Transcript for ' + mediaObject.label,
-              type: 'text',
-              owner: user,
-              content: $('#content').text(),
-              media: mediaId
-            }),
-            success: function(data) {
-              transcriptObject = data;
-              console.log(data);
-              alert('Created!');
-            },
-            error: function() {
-              alert('Save Error');
-            },
-            xhrFields: {
-              withCredentials: true
-            },
-            crossDomain: true
-          });
+          updateTranscript(user);
         }
         //
       } else {
