@@ -334,6 +334,8 @@ $( document ).ready(function() {
 
   var user = null;
 
+
+
   function whoami(callback) {
     $.ajax('http://api.hyperaud.io/v1/whoami', {
       type: "GET",
@@ -357,7 +359,10 @@ $( document ).ready(function() {
     });
   }
 
-  function saveTranscript(user) {
+  // initial call of whoami so we have user for autosave
+  whoami();
+
+  function updateTranscript(user) {
     $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
       type: "PUT",
       contentType: "application/json; charset=utf-8",
@@ -374,7 +379,7 @@ $( document ).ready(function() {
       success: function(data) {
         transcriptObject = data;
         console.log(data);
-        alert('Saved!');
+        console.log('Saved!');
       },
       error: function() {
         alert('Save Error');
@@ -386,7 +391,7 @@ $( document ).ready(function() {
     });
   }
 
-  function updateTranscript(user) {
+  function saveTranscript(user) {
     $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts', {
       type: "POST",
       contentType: "application/json; charset=utf-8",
@@ -401,7 +406,7 @@ $( document ).ready(function() {
       success: function(data) {
         transcriptObject = data;
         console.log(data);
-        alert('Created!');
+        console.log('Created!');
       },
       error: function() {
         alert('Save Error');
@@ -418,9 +423,9 @@ $( document ).ready(function() {
       if (user) {
         //
         if (transcriptObject) {
-          saveTranscript(user);
-        } else {
           updateTranscript(user);
+        } else {
+          saveTranscript(user);
         }
         //
       } else {
