@@ -78,8 +78,10 @@
 
 <script>
 
-var mediaID;
+var mediaId;
 var mediaObject;
+var transId;
+var transObjet;
 
 $( document ).ready(function() {
 
@@ -165,16 +167,24 @@ $( document ).ready(function() {
 
   };
 
-  var mp4Url = purl(document.location.href).param('mp4');
-  var webmUrl = purl(document.location.href).param('webm');
-  var ytUrl = purl(document.location.href).param('yt');
-
+  transId = purl(document.location.href).param('t');
   var sourceTarget = "#source-video";
 
-  if (mp4Url || webmUrl || ytUrl) {
-    getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
-  } else {
-    getHAMedia(sourceTarget);
+  if (transId) {
+    getHATranscribedMedia(); 
+  }
+  else
+  {
+    var mp4Url = purl(document.location.href).param('mp4');
+    var webmUrl = purl(document.location.href).param('webm');
+    var ytUrl = purl(document.location.href).param('yt');
+
+    if (mp4Url || webmUrl || ytUrl) {
+      getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
+    } else {
+      mediaId = purl(document.location.href).param('m');
+      getHAMedia(sourceTarget);
+    }
   }
 
   function getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl) {
@@ -228,60 +238,76 @@ $( document ).ready(function() {
     main(myPlayer); 
   }
 
+  function assignMediaObject(_mediaObject) {
 
-  
-  function getHAMedia(sourceTarget) {
-
-    mediaID = purl(document.location.href).param('m');
+    console.dir(_mediaObject);
 
     var staticUrl = false;
-
     var myPlayer = null;
     var myMp4 = "";
     var myWebm = "";
+    
+    mediaObject = _mediaObject;
+    if (mediaObject.source.mp4) {
+      myMp4 = mediaObject.source.mp4.url;
+      staticUrl = true;
+    }
 
-    $.get('http://api.hyperaud.io/v1/media/' + mediaID, function(_mediaObject) {
-      mediaObject = _mediaObject;
-      if (mediaObject.source.mp4) {
-        myMp4 = mediaObject.source.mp4.url;
-        staticUrl = true;
+    if (mediaObject.source.webm) {
+      myWebm = mediaObject.source.webm.url;
+      staticUrl = true;
+    }
+
+    if (!staticUrl) {
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          youtube: mediaObject.source.youtube.url,
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+
+    } else {
+
+      // display playbackrate controls
+      displayPbr();
+
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          mp4: myMp4,
+          webm: myWebm
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+    }
+    main(myPlayer);
+  }
+
+
+  function getHAMedia(sourceTarget) {
+    $.get('http://api.hyperaud.io/v1/media/' + mediaId, function(_mediaObject) {
+      assignMediaObject(_mediaObject);
+    }); 
+  }
+
+  function getHATranscribedMedia() {
+    $.get('http://api.hyperaud.io/v1/transcripts/' + transId, function(_transObject) {
+      transObject = _transObject;
+
+
+
+      assignMediaObject(transObject.media);
+
+      if (transObject.content) {
+        $('#content').text(transObject.content);
       }
-
-      if (mediaObject.source.webm) {
-        myWebm = mediaObject.source.webm.url;
-        staticUrl = true;
-      }
-
-      if (!staticUrl) {
-        myPlayer = HA.Player({
-          target: sourceTarget,
-          media: {
-            youtube: mediaObject.source.youtube.url,
-          },
-          gui: {
-            navigation: false,
-            fullscreen: false
-          }
-        });
-
-      } else {
-
-        // display playbackrate controls
-        displayPbr();
-
-        myPlayer = HA.Player({
-          target: sourceTarget,
-          media: {
-            mp4: myMp4,
-            webm: myWebm
-          },
-          gui: {
-            navigation: false,
-            fullscreen: false
-          }
-        });
-      }
-      main(myPlayer);
     }); 
   }
 
@@ -333,7 +359,7 @@ $( document ).ready(function() {
                 sort: 0,
                 owner: user,
                 content: $('#content').text(),
-                media: mediaID
+                media: mediaId
               }),
               success: function(data) {
                 transcriptObject = data;
@@ -358,7 +384,7 @@ $( document ).ready(function() {
               type: 'text',
               owner: user,
               content: $('#content').text(),
-              media: mediaID
+              media: mediaId
             }),
             success: function(data) {
               transcriptObject = data;
