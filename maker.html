@@ -11,6 +11,8 @@
   #content {
     font-size: 1.3em;
     padding: 10px; outline: 2px dashed #CCC; 
+    width: 100%;
+    
   }
 
   #content:hover { outline: 2px dashed #0090D2; }
@@ -49,7 +51,7 @@
   </form>
 </div>
 
-<div id="content" contenteditable="true"></div>
+<textarea id="content"></textarea>
 
 
 <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
@@ -312,7 +314,7 @@ $( document ).ready(function() {
       assignMediaObject(transcriptObject.media);
 
       if (transcriptObject.content) {
-        $('#content').text(transcriptObject.content);
+        $('#content').val(transcriptObject.content);
       }
     }); 
   }
@@ -360,7 +362,7 @@ $( document ).ready(function() {
         type: 'text',
         sort: 0,
         owner: user,
-        content: $('#content').text(),
+        content: $('#content').val(),
         media: mediaId
       }),
       success: function(data) {
@@ -387,7 +389,7 @@ $( document ).ready(function() {
         label:  'Transcript for ' + mediaObject.label,
         type: 'text',
         owner: user,
-        content: $('#content').text(),
+        content: $('#content').val(),
         media: mediaId
       }),
       success: function(data) {
