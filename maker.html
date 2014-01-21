@@ -182,14 +182,15 @@ $( document ).ready(function() {
   }
   else
   {
-    var mp4Url = purl(document.location.href).param('mp4');
-    var webmUrl = purl(document.location.href).param('webm');
-    var ytUrl = purl(document.location.href).param('yt');
+    var mp4Url = purl(window.top.document.location.href).param('mp4');
+    var webmUrl = purl(window.top.document.location.href).param('webm');
+    var ytUrl = purl(window.top.document.location.href).param('yt');
 
     if (mp4Url || webmUrl || ytUrl) {
       getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
     } else {
-      mediaId = purl(document.location.href).param('m');
+      mediaId = purl(window.top.document.location.href).param('m');
+      
       getHAMedia(sourceTarget);
     }
   }
