@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Transcript Maker - Demo</title>
+  <title>Transcript Maker</title>
   <link rel="stylesheet" type="text/css" href="css/hyperaudio.transcript.css" />
   <link rel="stylesheet" type="text/css" href="css/hyperaudio.player.css" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -10,16 +10,12 @@
   <style>
   #content {
     font-size: 1.3em;
-    height: 16em;
+    padding: 10px; outline: 2px dashed #CCC; 
+    width: 100%;
+    height: 200px;    
   }
 
-  #header {
-    background: #0090D2;
-  }
-
-  #save-button {
-    background: #0060B2;
-  }
+  #content:hover { outline: 2px dashed #0090D2; }
 
   #source-video {
     margin-top: 60px;
@@ -29,47 +25,33 @@
     padding:20px;
   }
 
-  div.hyperaudio-player-progress {
-    background: #0060B2;
+  #wrapper {
+    overflow: auto;
   }
 
-  li.hyperaudio-player-play {
-    background: #0090D2;
-  }
   </style>
 </head>
 <body>
+
 <div id="wrapper">
   <header id="header">
     <h1>Hyperaudio Maker</h1>
-
     <div id="save-button">6</div>
   </header>
 <div>
 
 <div id="source-video" class="transcript-video"></div>
-
-<form class="controls">
-<input style="display:none; width:100%" id="pbr" type="range" value="1" min="0.5" max="4" step="0.1">
-<p id="pbrLabel" style="display:none">Playback Rate <span id="currentPbr">1</span></p>
-<input id="cht" type="range" value="4" min="0" max="10" step="1" style="width:100%">
-<p>Chunk Length (seconds) <span id="currentCht">4</span></p>
-<input id="inactivity" type="range" value="2" min="0.5" max="10" step="0.5" style="width:100%">
-<p>Inactivity Cue (seconds) <span id="currentInactivity">2</span></p>
-</form>
+  <form class="controls">
+    <input style="display:none; width:100%" id="pbr" type="range" value="1" min="0.5" max="4" step="0.1">
+    <p id="pbrLabel" style="display:none">Playback Rate <span id="currentPbr">1</span></p>
+    <input id="cht" type="range" value="4" min="0" max="10" step="1" style="width:100%">
+    <p>Chunk Length (seconds) <span id="currentCht">4</span></p>
+    <input id="inactivity" type="range" value="2" min="0.5" max="10" step="0.5" style="width:100%">
+    <p>Inactivity Cue (seconds) <span id="currentInactivity">2</span></p>
+  </form>
 </div>
 
-
-<div id="content" contenteditable="true"></div>
-
-</div>
-
-<button id='save'>SAVE</button>
-
-<style scoped>
-  [contenteditable="true"] { padding: 10px; outline: 2px dashed #CCC; }
-  [contenteditable="true"]:hover { outline: 2px dashed #0090D2; }
-</style>
+<textarea id="content"></textarea>
 
 
 <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
@@ -78,7 +60,39 @@
 
 <script>
 
+/*
+ jQuery autoSave v1.0.0 - 2013-04-05
+ (c) 2013 Yang Zhao - geniuscarrier.com
+ license: http://www.opensource.org/licenses/mit-license.php
+ */
+(function($) {
+    $.fn.autoSave = function(callback, ms) {
+        return this.each(function() {
+            var timer = 0, 
+                $this = $(this),
+                delay = ms || 1000;
+            $this.keyup(function() {
+                clearTimeout(timer);
+                /*var $context = $this.val();
+                if(localStorage) {
+                    localStorage.setItem("autoSave", $context);
+                }*/
+                timer = setTimeout(function() {
+                    callback();
+                }, delay);
+            });
+        });
+    };
+})(jQuery);
+
+var mediaId;
+var mediaObject;
+var transcriptId;
+var transcriptObject;
+
 $( document ).ready(function() {
+
+
 
   function main(myPlayer) {
 
@@ -162,16 +176,25 @@ $( document ).ready(function() {
 
   };
 
-  var mp4Url = purl(document.location.href).param('mp4');
-  var webmUrl = purl(document.location.href).param('webm');
-  var ytUrl = purl(document.location.href).param('yt');
-
+  transcriptId = purl(window.top.document.location.href).param('t');
   var sourceTarget = "#source-video";
 
-  if (mp4Url || webmUrl || ytUrl) {
-    getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
-  } else {
-    getHAMedia(sourceTarget);
+  if (transcriptId) {
+    getHATranscribedMedia(); 
+  }
+  else
+  {
+    var mp4Url = purl(window.top.document.location.href).param('mp4');
+    var webmUrl = purl(window.top.document.location.href).param('webm');
+    var ytUrl = purl(window.top.document.location.href).param('yt');
+
+    if (mp4Url || webmUrl || ytUrl) {
+      getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
+    } else {
+      mediaId = purl(window.top.document.location.href).param('m');
+      
+      getHAMedia(sourceTarget);
+    }
   }
 
   function getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl) {
@@ -225,57 +248,74 @@ $( document ).ready(function() {
     main(myPlayer); 
   }
 
-  function getHAMedia(sourceTarget) {
+  function assignMediaObject(_mediaObject) {
 
-    var mediaID = purl(document.location.href).param('m');
+    console.dir(_mediaObject);
 
     var staticUrl = false;
-
     var myPlayer = null;
     var myMp4 = "";
     var myWebm = "";
+    
+    mediaObject = _mediaObject;
+    if (mediaObject.source.mp4) {
+      myMp4 = mediaObject.source.mp4.url;
+      staticUrl = true;
+    }
 
-    $.get('http://api.hyperaud.io/media/' + mediaID, function(mediaObject) {
-      if (mediaObject.source.mp4) {
-        myMp4 = mediaObject.source.mp4.url;
-        staticUrl = true;
+    if (mediaObject.source.webm) {
+      myWebm = mediaObject.source.webm.url;
+      staticUrl = true;
+    }
+
+    if (!staticUrl) {
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          youtube: mediaObject.source.youtube.url,
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+
+    } else {
+
+      // display playbackrate controls
+      displayPbr();
+
+      myPlayer = HA.Player({
+        target: sourceTarget,
+        media: {
+          mp4: myMp4,
+          webm: myWebm
+        },
+        gui: {
+          navigation: false,
+          fullscreen: false
+        }
+      });
+    }
+    main(myPlayer);
+  }
+
+
+  function getHAMedia(sourceTarget) {
+    $.get('http://api.hyperaud.io/v1/media/' + mediaId, function(_mediaObject) {
+      assignMediaObject(_mediaObject);
+    }); 
+  }
+
+  function getHATranscribedMedia() {
+    $.get('http://api.hyperaud.io/v1/transcripts/' + transcriptId, function(_transcriptObject) {
+      transcriptObject = _transcriptObject;
+
+      assignMediaObject(transcriptObject.media);
+
+      if (transcriptObject.content) {
+        $('#content').val(transcriptObject.content);
       }
-
-      if (mediaObject.source.webm) {
-        myWebm = mediaObject.source.webm.url;
-        staticUrl = true;
-      }
-
-      if (!staticUrl) {
-        myPlayer = HA.Player({
-          target: sourceTarget,
-          media: {
-            youtube: mediaObject.source.youtube.url,
-          },
-          gui: {
-            navigation: false,
-            fullscreen: false
-          }
-        });
-
-      } else {
-
-        // display playbackrate controls
-        displayPbr();
-
-        myPlayer = HA.Player({
-          target: sourceTarget,
-          media: {
-            mp4: myMp4,
-            webm: myWebm
-          },
-          gui: {
-            navigation: false,
-            fullscreen: false
-          }
-        });
-      }
-      main(myPlayer);
     }); 
   }
 
@@ -284,10 +324,12 @@ $( document ).ready(function() {
     document.getElementById("pbrLabel").style.display = "block";
   }
 
-  var user;
+  var user = null;
+
+
 
   function whoami(callback) {
-    $.ajax('http://api.hyperaud.io/whoami', {
+    $.ajax('http://api.hyperaud.io/v1/whoami', {
       type: "GET",
      contentType: "application/json; charset=utf-8",
      success: function(whoami) {
@@ -309,67 +351,87 @@ $( document ).ready(function() {
     });
   }
 
-  var transcriptObject = null;
-  $('#save-button').click(function() {
+  function updateTranscript(user) {
+    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
+      type: "PUT",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        _id: transcriptObject._id,
+        label:  'Transcript for ' + mediaObject.label,
+        type: 'text',
+        sort: 0,
+        owner: user,
+        content: $('#content').val(),
+        media: mediaId
+      }),
+      success: function(data) {
+        transcriptObject = data;
+        console.log(data);
+        console.log('Saved!');
+      },
+      error: function() {
+        alert('Save Error');
+      },
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    });
+  }
+
+  function saveTranscript(user) {
+    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts', {
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        label:  'Transcript for ' + mediaObject.label,
+        type: 'text',
+        owner: user,
+        content: $('#content').val(),
+        media: mediaId
+      }),
+      success: function(data) {
+        transcriptObject = data;
+        console.log(data);
+        console.log('Created!');
+      },
+      error: function() {
+        alert('Save Error');
+      },
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    });
+  }
+
+  function save() {
     whoami(function() {
-      if (user && user.username) {
+      if (user) {
         //
         if (transcriptObject) {
-            $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts/' + transcriptObject._id, {
-              type: "PUT",
-              data: {
-                _id: transcriptObject._id,
-                label:  'Transcript for ' + mediaObject.label,
-                type: 'text',
-                sort: 0,
-                owner: user.username,
-                content: $('#content').text(),
-                media: mediaID
-              },
-              success: function(data) {
-                transcriptObject = data;
-                console.log(data);
-                alert('Saved!');
-              },
-              error: function() {
-                alert('Save Error');
-              },
-              xhrFields: {
-                withCredentials: true
-              },
-              crossDomain: true
-            });
+          updateTranscript(user);
         } else {
-          $.ajax( 'http://api.hyperaud.io/' + user.username + '/transcripts', {
-            type: "POST",
-            data: {
-              label:  'Transcript for ' + mediaObject.label,
-              type: 'text',
-              sort: 0,
-              owner: user.username,
-              content: $('#content').text(),
-              media: mediaID
-            },
-            success: function(data) {
-              transcriptObject = data;
-              console.log(data);
-              alert('Created!');
-            },
-            error: function() {
-              alert('Save Error');
-            },
-            xhrFields: {
-              withCredentials: true
-            },
-            crossDomain: true
-          });
+          saveTranscript(user);
         }
         //
       } else {
         alert('not logged in');
       }
-    });
+    });    
+  }
+  
+  $('#save-button').click(function() {
+    save();
   });
+
+  $('#content').autoSave(function() {
+    save();
+    console.log('auto-saved');
+  }, 60000);
+
 });
 </script>
 

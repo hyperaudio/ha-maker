@@ -129,7 +129,7 @@ p {
 	left: 0;
 	width: 100%;
 	height: 48px;
-	background: #469659;
+	background: #2c3e50;
 }
 
 #footer {
@@ -165,12 +165,17 @@ h1 {
 	position: absolute;
 	top: 0;
 	right: 0px;
-	background: #387847;
+	background: #666;
 	text-align: center;
 	line-height: 48px;
 	font-size: 1.5em;
 	color: #fff;
 	cursor: pointer;
+}
+
+#save-button:hover {
+	background: #ccc;
+	color: #2c3e50;
 }
 
 #transcript {

@@ -1,20 +1,33 @@
+<!DOCTYPE html>
 <html>
+<head lang="en">
+	<title>Hyperaudio Maker</title>
+	<meta charset="utf-8">
+	<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+	<meta name="viewport" content="width=device-width">
+	<link href="/assets/images/inserts/favicon.ico" rel="icon" type="image/x-icon" >
+	<style type="text/css">
+	body {
+		margin:0px;
+		padding:0px;
+		overflow:scroll-y;
+	}
+
+	.main {
+		overflow:hidden;
+		height: 100%;
+		height: calc(100% - 54px);
+		width:100%;
+		position:absolute;
+		top:54px;
+		left:0px;
+		right:0px;
+		bottom:0px;
+	}
+	</style>
+</head>
 <body>
-	<h1>Hyperaudio Maker - Tester</h1>
-	<p>
-		Hyperaudio API (static) <a href="maker.html?m=52a1dfafe4b0379c692e4665">maker.html?m=52a1dfafe4b0379c692e4665</a>
-	</p>
-	<p>
-		Hyperaudio API (YouTube) <a href="maker.html?m=52a6f1def223342d64000004">maker.html?m=52a6f1def223342d64000004</a>
-	</p>
-	<p>
-		Direct Link (MP4) <a href="maker.html?mp4=http://hyperaud.io/video/obama-responds.mp4">maker.html?mp4=http://hyperaud.io/video/obama-responds.mp4</a>
-	</p>
-	<!--<p>
-		Direct Link (WebM) <a href="maker.html?webm=http://hyperaud.io/video/obama-responds.webm">maker.html?webm=http://hyperaud.io/video/obama-responds.webm</a>
-	</p>-->
-	<p>
-		Direct Link (YouTube) <a href="maker.html?yt=http://www.youtube.com/watch?v=wB4Gn0u4DSE">maker.html?yt=http://www.youtube.com/watch?v=wB4Gn0u4DSE</a>
-	</p>
+	<iframe src="/commons/tools/header.html" height="100px" width="100%" frameborder="0" seamless scrolling="no"></iframe>
+	<iframe class="main" src="maker.html" height="100%" width="100%" frameborder="0" seamless></iframe>
 </body>
 </html>
