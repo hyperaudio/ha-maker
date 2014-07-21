@@ -362,7 +362,7 @@ $( document ).ready(function() {
   }
 
   function updateTranscript(user) {
-    $.ajax( API + user + '/transcripts/' + transcriptObject._id, {
+    $.ajax( API + '/' + user + '/transcripts/' + transcriptObject._id, {
       type: "PUT",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -391,7 +391,7 @@ $( document ).ready(function() {
   }
 
   function saveTranscript(user) {
-    $.ajax( API + user + '/transcripts', {
+    $.ajax( API + '/' + user + '/transcripts', {
       type: "POST",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
