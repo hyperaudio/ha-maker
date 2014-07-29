@@ -178,6 +178,19 @@ h1 {
 	color: #2c3e50;
 }
 
+#save-button-saving {
+	width: 48px;
+	height: 48px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #808080;
+	background-image: url('../images/ajax-loader-ffffff-on-808080.gif');
+	background-position: center center;
+	background-repeat: no-repeat;
+	display:none;
+}
+
 #transcript {
 	font-family: 'Varela Round', 'helvetica neue', arial, sans-serif;
 	font-size: 1.3em;
