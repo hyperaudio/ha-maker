@@ -90,6 +90,23 @@ var mediaObject;
 var transcriptId;
 var transcriptObject;
 
+var namespace = null;
+if (document.location.hostname.indexOf('hyperaud') > 0) {
+  namespace = document.location.hostname.substring(0, document.location.hostname.indexOf('hyperaud') - 1);
+}
+
+var prefix = '';
+if (namespace) prefix = namespace + '.';
+
+var domain;
+if (document.location.hostname.indexOf('hyperaud.io') > -1) {
+  domain = 'hyperaud.io';
+} else {
+  domain = 'hyperaudio.net';
+}
+
+var API = 'http://' + prefix + 'api.' + domain + '/v1';
+
 $( document ).ready(function() {
 
 
@@ -302,13 +319,13 @@ $( document ).ready(function() {
 
 
   function getHAMedia(sourceTarget) {
-    $.get('http://api.hyperaud.io/v1/media/' + mediaId, function(_mediaObject) {
+    $.get(API + '/media/' + mediaId, function(_mediaObject) {
       assignMediaObject(_mediaObject);
     }); 
   }
 
   function getHATranscribedMedia() {
-    $.get('http://api.hyperaud.io/v1/transcripts/' + transcriptId, function(_transcriptObject) {
+    $.get(API + '/transcripts/' + transcriptId, function(_transcriptObject) {
       transcriptObject = _transcriptObject;
 
       assignMediaObject(transcriptObject.media);
@@ -329,7 +346,7 @@ $( document ).ready(function() {
 
 
   function whoami(callback) {
-    $.ajax('http://api.hyperaud.io/v1/whoami', {
+    $.ajax(API + '/whoami', {
       type: "GET",
      contentType: "application/json; charset=utf-8",
      success: function(whoami) {
@@ -352,7 +369,7 @@ $( document ).ready(function() {
   }
 
   function updateTranscript(user) {
-    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts/' + transcriptObject._id, {
+    $.ajax( API + '/' + user + '/transcripts/' + transcriptObject._id, {
       type: "PUT",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -381,7 +398,7 @@ $( document ).ready(function() {
   }
 
   function saveTranscript(user) {
-    $.ajax( 'http://api.hyperaud.io/v1/' + user + '/transcripts', {
+    $.ajax( API + '/' + user + '/transcripts', {
       type: "POST",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
