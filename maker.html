@@ -224,6 +224,7 @@ $( document ).ready(function() {
     var myPlayer = null;
     var myMp4 = "";
     var myWebm = "";
+    var myMp3 = "";
 
 
     if (mp4Url) {
@@ -232,6 +233,11 @@ $( document ).ready(function() {
     }
 
     if (webmUrl) {
+      myWebm = webmUrl;
+      staticUrl = true;
+    }
+
+    if (myMp3) {
       myWebm = webmUrl;
       staticUrl = true;
     }
@@ -272,51 +278,16 @@ $( document ).ready(function() {
 
     console.dir(_mediaObject);
 
-    var staticUrl = false;
-    var myPlayer = null;
-    var myMp4 = "";
-    var myWebm = "";
-    
     mediaObject = _mediaObject;
-    if (mediaObject.source.mp4) {
-      myMp4 = mediaObject.source.mp4.url;
-      staticUrl = true;
-    }
 
-    if (mediaObject.source.webm) {
-      myWebm = mediaObject.source.webm.url;
-      staticUrl = true;
-    }
-
-    if (!staticUrl) {
-      myPlayer = HA.Player({
-        target: sourceTarget,
-        media: {
-          youtube: mediaObject.source.youtube.url,
-        },
-        gui: {
-          navigation: false,
-          fullscreen: false
-        }
-      });
-
-    } else {
-
-      // display playbackrate controls
-      displayPbr();
-
-      myPlayer = HA.Player({
-        target: sourceTarget,
-        media: {
-          mp4: myMp4,
-          webm: myWebm
-        },
-        gui: {
-          navigation: false,
-          fullscreen: false
-        }
-      });
-    }
+    var myPlayer = HA.Player({
+      target: sourceTarget,
+      media: _mediaObject,
+      gui: {
+        navigation: false,
+        fullscreen: false
+      }
+    });
     main(myPlayer);
   }
 
