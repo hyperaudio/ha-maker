@@ -280,9 +280,15 @@ $( document ).ready(function() {
 
     mediaObject = _mediaObject;
 
+    var media = {};
+
+    HA.each(mediaObject.source, function(fmt, details) {
+      media[fmt] = details.url;
+    });
+
     var myPlayer = HA.Player({
       target: sourceTarget,
-      media: _mediaObject,
+      media: media,
       gui: {
         navigation: false,
         fullscreen: false
