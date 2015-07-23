@@ -1,4 +1,4 @@
-/*! hyperaudio-lib v0.6.2 ~ (c) 2012-2014 Hyperaudio Inc. <hello@hyperaud.io> (http://hyperaud.io) http://hyperaud.io/licensing/ ~ Built: 4th December 2014 19:17:00 */
+/*! hyperaudio-lib v0.6.5 ~ (c) 2012-2015 Hyperaudio Inc. <hello@hyperaud.io> (http://hyperaud.io) http://hyperaud.io/licensing/ ~ Built: 3rd July 2015 18:38:25 */
 (function(global, document) {
 
   // Popcorn.js does not support archaic browsers
@@ -3208,6 +3208,11 @@
 
     function onBuffering() {
       impl.networkState = self.NETWORK_LOADING;
+      var newDuration = player.getDuration();
+      if (impl.duration !== newDuration) {
+        impl.duration = newDuration;
+        self.dispatchEvent( "durationchange" );
+      }
       self.dispatchEvent( "waiting" );
     }
 
@@ -3351,41 +3356,29 @@
       // Set wmode to transparent to show video overlays
       playerVars.wmode = playerVars.wmode || "opaque";
 
+      if ( playerVars.html5 !== 0 ) {
+        playerVars.html5 = 1;
+      }
+
       // Get video ID out of youtube url
       aSrc = regexYouTube.exec( aSrc )[ 1 ];
 
-      var xhrURL = "https://gdata.youtube.com/feeds/api/videos/" + aSrc + "?v=2&alt=jsonc&callback=?";
-      // Get duration value.
-      Popcorn.getJSONP( xhrURL, function( resp ) {
-
-        var warning = "failed to retreive duration data, reason: ";
-        if ( resp.error ) {
-          console.warn( warning + resp.error.message );
-          return ;
-        } else if ( !resp.data ) {
-          console.warn( warning + "no response data" );
-          return;
+      player = new YT.Player( elem, {
+        width: "100%",
+        height: "100%",
+        wmode: playerVars.wmode,
+        videoId: aSrc,
+        playerVars: playerVars,
+        events: {
+          'onReady': onPlayerReady,
+          'onError': onPlayerError,
+          'onStateChange': onPlayerStateChange
         }
-        impl.duration = resp.data.duration;
-        self.dispatchEvent( "durationchange" );
-
-        player = new YT.Player( elem, {
-          width: "100%",
-          height: "100%",
-          wmode: playerVars.wmode,
-          videoId: aSrc,
-          playerVars: playerVars,
-          events: {
-            'onReady': onPlayerReady,
-            'onError': onPlayerError,
-            'onStateChange': onPlayerStateChange
-          }
-        });
-
-        impl.networkState = self.NETWORK_LOADING;
-        self.dispatchEvent( "loadstart" );
-        self.dispatchEvent( "progress" );
       });
+
+      impl.networkState = self.NETWORK_LOADING;
+      self.dispatchEvent( "loadstart" );
+      self.dispatchEvent( "progress" );
     }
 
     function monitorCurrentTime() {
@@ -8917,7 +8910,8 @@ var Player = (function(window, document, hyperaudio, Popcorn) {
 			media: {
 				youtube: '', // The URL of the Youtube video.
 				mp4: '', // The URL of the mp4 video.
-				webm:'' // The URL of the webm video.
+				webm: '', // The URL of the webm video.
+				mpeg: '' // The URL of the mp3 audio.
 			},
 
 			// Types valid in a video element
@@ -8942,7 +8936,7 @@ var Player = (function(window, document, hyperaudio, Popcorn) {
 		this.commandsIgnored = /ipad|iphone|ipod|android/i.test(window.navigator.userAgent);
 
 		// List of the media types, used to check for changes in media.
-		this.mediaTypes = "youtube mp4 webm";
+		this.mediaTypes = "youtube mp4 webm mpeg";
 
 		this.youtube = false; // A flag to indicate if the YT player being used.
 
@@ -9629,8 +9623,18 @@ var Transcript = (function(document, hyperaudio) {
 			this._debug();
 		}
 
+		// See if the media object contains anything.
+		var tryLoad = false;
+		hyperaudio.each(this.options.media, function(format, url) {
+			if(url) {
+				tryLoad = true;
+				return false; // exit each
+			}
+		});
+
 		// If we have the info, kick things off
-		if(this.options.id || this.options.media.youtube || this.options.media.mp4) {
+		// if(this.options.id || this.options.media.youtube || this.options.media.mp4) {
+		if(this.options.id || tryLoad) { // We have something - try to load it.
 			this.load();
 		}
 	}
@@ -9846,6 +9850,9 @@ var Transcript = (function(document, hyperaudio) {
 									if(opts.media.youtube) {
 										el.setAttribute(opts.stage.options.ytAttr, opts.media.youtube); // Pass the transcript youtube url
 									}
+									if(opts.media.mpeg) {
+										el.setAttribute(opts.stage.options.mpegAttr, opts.media.mpeg); // Pass the transcript mp3 url
+									}
 									el.setAttribute(opts.stage.options.unitAttr, opts.unit); // Pass the transcript Unit
 									opts.stage.dropped(el);
 								}
@@ -9955,6 +9962,7 @@ var Stage = (function(document, hyperaudio) {
 			mp4Attr: 'data-mp4', // Attribute name that holds the transcript mp4 URL.
 			webmAttr: 'data-webm', // Attribute name that holds the transcript webm URL.
 			ytAttr: 'data-yt', // Attribute name that holds the transcript youtube URL.
+			mpegAttr: 'data-mpeg', // Attribute name that holds the transcript mpeg URL.
 			unitAttr: 'data-unit', // Attribute name that holds the transcript Unit.
 
 			word: 'a',
@@ -10914,13 +10922,15 @@ var Projector = (function(window, document, hyperaudio, Popcorn) {
 				// Get the media
 				var mp4 = el.getAttribute(stageOptions.mp4Attr),
 					webm = el.getAttribute(stageOptions.webmAttr),
-					youtube = el.getAttribute(stageOptions.ytAttr);
+					youtube = el.getAttribute(stageOptions.ytAttr),
+					mpeg = el.getAttribute(stageOptions.mpegAttr);
 
-				if(mp4 || webm || youtube) {
+				if(mp4 || webm || youtube || mpeg) {
 					section.media = {
 						mp4: mp4,
 						webm: webm,
-						youtube: youtube
+						youtube: youtube,
+						mpeg: mpeg
 					};
 				} else {
 					section.media = false;
