@@ -66,7 +66,6 @@
 <script type="text/javascript" src="js/hyperaudio-lib.js"></script>
 
 <script>
-
 /*
  jQuery autoSave v1.0.0 - 2013-04-05
  (c) 2013 Yang Zhao - geniuscarrier.com
@@ -114,10 +113,17 @@ if (document.location.hostname.indexOf('hyperaud.io') > -1) {
 
 var savingAnim = document.querySelector('#save-button-saving');
 
-var API = 'http://' + prefix + 'api.' + domain + '/v1';
+var API = 'https://' + prefix + 'api.' + domain + '/v1';
 
 $( document ).ready(function() {
 
+  $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+    if (options.url.indexOf(API) == 0) {
+      if (window.localStorage.getItem('token')) {
+        jqXHR.setRequestHeader('Authorization', 'Bearer ' + window.localStorage.getItem('token'));
+      }
+    }
+  });
 
 
   function main(myPlayer) {
@@ -332,7 +338,7 @@ $( document ).ready(function() {
 
 
   function whoami(callback) {
-    $.ajax(API + '/whoami', {
+    $.ajax(API + '/auth/whoami/' + window.localStorage.getItem('token'), {
       type: "GET",
      contentType: "application/json; charset=utf-8",
      success: function(whoami) {
@@ -356,7 +362,7 @@ $( document ).ready(function() {
 
   function updateTranscript(user) {
 
-    $.ajax( API + '/' + user + '/transcripts/' + transcriptObject._id, {
+    $.ajax( API + '/transcripts/' + transcriptObject._id, {
       type: "PUT",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -388,7 +394,7 @@ $( document ).ready(function() {
 
   function saveTranscript(user) {
 
-    $.ajax( API + '/' + user + '/transcripts', {
+    $.ajax( API + '/transcripts', {
       type: "POST",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
