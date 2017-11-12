@@ -6,13 +6,13 @@
   <link rel="stylesheet" type="text/css" href="css/hyperaudio.transcript.css" />
   <link rel="stylesheet" type="text/css" href="css/hyperaudio.player.css" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
-  <link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
   <style>
   #content {
     font-size: 1.3em;
-    padding: 10px; outline: 2px dashed #CCC; 
+    padding: 10px; outline: 2px dashed #CCC;
     width: 100%;
-    height: 200px;    
+    height: 200px;
   }
 
   #content:hover { outline: 2px dashed #0090D2; }
@@ -35,7 +35,7 @@
 
   </style>
   <!--<link rel="stylesheet" type="text/css" href="lib/shepherd/css/shepherd-theme-hyperaudio.css" />-->
-  <link rel="stylesheet" type="text/css" href="http://hyperaud.io/assets/tours/shepherd/css/shepherd-theme-hyperaudio.css" />
+  <!-- <link rel="stylesheet" type="text/css" href="http://hyperaud.io/assets/tours/shepherd/css/shepherd-theme-hyperaudio.css" /> -->
 </head>
 <body>
 
@@ -61,7 +61,7 @@
 <textarea id="content"></textarea>
 
 
-<script src="http://code.jquery.com/jquery-2.0.3.js"></script>
+<script src="https://code.jquery.com/jquery-2.0.3.js"></script>
 <script type="text/javascript" src="lib/purl.js"></script>
 <script type="text/javascript" src="js/hyperaudio-lib.js"></script>
 
@@ -75,7 +75,7 @@
 (function($) {
     $.fn.autoSave = function(callback, ms) {
         return this.each(function() {
-            var timer = 0, 
+            var timer = 0,
                 $this = $(this),
                 delay = ms || 1000;
             $this.keyup(function() {
@@ -206,7 +206,7 @@ $( document ).ready(function() {
   var sourceTarget = "#source-video";
 
   if (transcriptId) {
-    getHATranscribedMedia(); 
+    getHATranscribedMedia();
   }
   else
   {
@@ -218,7 +218,7 @@ $( document ).ready(function() {
       getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
     } else {
       mediaId = purl(window.top.document.location.href).param('m');
-      
+
       getHAMedia(sourceTarget);
     }
   }
@@ -277,7 +277,7 @@ $( document ).ready(function() {
         }
       });
     }
-    main(myPlayer); 
+    main(myPlayer);
   }
 
   function assignMediaObject(_mediaObject) {
@@ -307,7 +307,7 @@ $( document ).ready(function() {
   function getHAMedia(sourceTarget) {
     $.get(API + '/media/' + mediaId, function(_mediaObject) {
       assignMediaObject(_mediaObject);
-    }); 
+    });
   }
 
   function getHATranscribedMedia() {
@@ -319,7 +319,7 @@ $( document ).ready(function() {
       if (transcriptObject.content) {
         $('#content').val(transcriptObject.content);
       }
-    }); 
+    });
   }
 
   function displayPbr() {
@@ -350,7 +350,7 @@ $( document ).ready(function() {
       xhrFields: {
         withCredentials: true
       },
-        crossDomain: true 
+        crossDomain: true
     });
   }
 
@@ -387,7 +387,7 @@ $( document ).ready(function() {
   }
 
   function saveTranscript(user) {
-    
+
     $.ajax( API + '/' + user + '/transcripts', {
       type: "POST",
       contentType: "application/json; charset=utf-8",
@@ -430,9 +430,9 @@ $( document ).ready(function() {
       } else {
         alert('not logged in');
       }
-    });    
+    });
   }
-  
+
   $('#save-button').click(function() {
     save();
   });
@@ -447,7 +447,7 @@ $( document ).ready(function() {
 <!-- remove the following line if analytics are not required -->
 <script type="text/javascript" src="/commons/tools/analytics/ga.js"></script>
 <!--<script type="text/javascript" src="lib/shepherd/shepherd.min.js"></script>-->
-<script type="text/javascript" src="http://hyperaud.io/assets/tours/shepherd/shepherd.min.js"></script>
-<script type="text/javascript" src="js/shepherd-tour.js"></script>
+<!-- <script type="text/javascript" src="http://hyperaud.io/assets/tours/shepherd/shepherd.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/shepherd-tour.js"></script> -->
 </body>
 </html>
