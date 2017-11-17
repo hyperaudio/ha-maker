@@ -5,7 +5,10 @@ var transcriptObject;
 
 var namespace = null;
 if (document.location.hostname.indexOf('hyperaud') > 0) {
-  namespace = document.location.hostname.substring(0, document.location.hostname.indexOf('hyperaud') - 1);
+  namespace = document.location.hostname.substring(
+    0,
+    document.location.hostname.indexOf('hyperaud') - 1
+  );
 }
 
 var prefix = '';
@@ -22,9 +25,8 @@ var savingAnim = document.querySelector('#save-button-saving');
 
 var API = 'https://' + prefix + 'api.' + domain + '/v1';
 
-$( document ).ready(function() {
-
-  $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+$(document).ready(function() {
+  $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
     if (options.url.indexOf(API) == 0) {
       if (window.localStorage.getItem('token')) {
         jqXHR.setRequestHeader('Authorization', 'Bearer ' + window.localStorage.getItem('token'));
@@ -32,45 +34,54 @@ $( document ).ready(function() {
     }
   });
 
-
   function main(myPlayer) {
-
     var timePoint = 0;
     var chunkTime = 4;
     var inactivityTime = 2;
     var lastActivity = Date.now();
 
-    var v = document.getElementsByTagName("video")[0];
-    var p = document.getElementById("pbr");
-    var cp = document.getElementById("currentPbr");
-    var c = document.getElementById("cht");
-    var cc = document.getElementById("currentCht");
-    var content = document.getElementById("content");
-    var i = document.getElementById("inactivity");
-    var ic = document.getElementById("currentInactivity");
+    var v = document.getElementsByTagName('video')[0];
+    var p = document.getElementById('pbr');
+    var cp = document.getElementById('currentPbr');
+    var c = document.getElementById('cht');
+    var cc = document.getElementById('currentCht');
+    var content = document.getElementById('content');
+    var i = document.getElementById('inactivity');
+    var ic = document.getElementById('currentInactivity');
 
     var activityPause = false;
 
-    myPlayer.addEventListener('timeupdate',function(){
-      var secs = Math.floor(this.currentTime);
-      if (secs%chunkTime == 0 && timePoint != secs) {
-        myPlayer.pause();
-        timePoint = secs;
-        activityPause = true;
-        //setTimeout(function(){v.play()},chunkTime*1000);
-      }
-    },false);
+    myPlayer.addEventListener(
+      'timeupdate',
+      function() {
+        var secs = Math.floor(this.currentTime);
+        if (secs % chunkTime == 0 && timePoint != secs) {
+          myPlayer.pause();
+          timePoint = secs;
+          activityPause = true;
+          //setTimeout(function(){v.play()},chunkTime*1000);
+        }
+      },
+      false
+    );
 
+    myPlayer.addEventListener(
+      'pause',
+      function() {
+        if (!activityPause) {
+          stopSampling();
+        }
+      },
+      false
+    );
 
-    myPlayer.addEventListener('pause',function(){
-      if (!activityPause) {
-        stopSampling();
-      }
-    },false);
-
-    myPlayer.addEventListener('play',function(){
-      startSampling();
-    },false);
+    myPlayer.addEventListener(
+      'play',
+      function() {
+        startSampling();
+      },
+      false
+    );
 
     var sampler;
 
@@ -78,7 +89,7 @@ $( document ).ready(function() {
       clearInterval(sampler);
       sampler = setInterval(function() {
         //console.log("sampling - "+Date.now() - lastActivity);
-        if (Date.now() - lastActivity > (1000*inactivityTime)) {
+        if (Date.now() - lastActivity > 1000 * inactivityTime) {
           myPlayer.play();
           activityPause = false;
         }
@@ -94,41 +105,54 @@ $( document ).ready(function() {
     // wire playbackRate directly into the video element
     // (won't work for YouTube)
 
-    p.addEventListener('input',function(){
-      cp.innerHTML = p.value;
-      v.playbackRate = p.value;
-    },false);
+    p.addEventListener(
+      'input',
+      function() {
+        cp.innerHTML = p.value;
+        v.playbackRate = p.value;
+      },
+      false
+    );
 
-    c.addEventListener('input',function(){
-      cc.innerHTML = c.value;
-      chunkTime = c.value;
-    },false);
+    c.addEventListener(
+      'input',
+      function() {
+        cc.innerHTML = c.value;
+        chunkTime = c.value;
+      },
+      false
+    );
 
-    i.addEventListener('input',function(){
-      ic.innerHTML = i.value;
-      inactivityTime = i.value;
-    },false);
+    i.addEventListener(
+      'input',
+      function() {
+        ic.innerHTML = i.value;
+        inactivityTime = i.value;
+      },
+      false
+    );
 
-    content.addEventListener('input',function(){
-      lastActivity = Date.now();
-    },false);
-
-  };
+    content.addEventListener(
+      'input',
+      function() {
+        lastActivity = Date.now();
+      },
+      false
+    );
+  }
 
   transcriptId = purl(window.top.document.location.href).param('t');
-  var sourceTarget = "#source-video";
+  var sourceTarget = '#source-video';
 
   if (transcriptId) {
     getHATranscribedMedia();
-  }
-  else
-  {
+  } else {
     var mp4Url = purl(window.top.document.location.href).param('mp4');
     var webmUrl = purl(window.top.document.location.href).param('webm');
     var ytUrl = purl(window.top.document.location.href).param('yt');
 
     if (mp4Url || webmUrl || ytUrl) {
-      getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl);
+      getDirectMedia(sourceTarget, mp4Url, webmUrl, ytUrl);
     } else {
       mediaId = purl(window.top.document.location.href).param('m');
 
@@ -136,15 +160,13 @@ $( document ).ready(function() {
     }
   }
 
-  function getDirectMedia(sourceTarget,mp4Url,webmUrl,ytUrl) {
-
+  function getDirectMedia(sourceTarget, mp4Url, webmUrl, ytUrl) {
     var staticUrl = false;
 
     var myPlayer = null;
-    var myMp4 = "";
-    var myWebm = "";
-    var myMp3 = "";
-
+    var myMp4 = '';
+    var myWebm = '';
+    var myMp3 = '';
 
     if (mp4Url) {
       myMp4 = mp4Url;
@@ -165,16 +187,14 @@ $( document ).ready(function() {
       myPlayer = HA.Player({
         target: sourceTarget,
         media: {
-          youtube: ytUrl,
+          youtube: ytUrl
         },
         gui: {
           navigation: false,
           fullscreen: false
         }
       });
-
     } else {
-
       // display playbackrate controls
       displayPbr();
 
@@ -194,7 +214,6 @@ $( document ).ready(function() {
   }
 
   function assignMediaObject(_mediaObject) {
-
     console.dir(_mediaObject);
 
     mediaObject = _mediaObject;
@@ -216,7 +235,6 @@ $( document ).ready(function() {
     main(myPlayer);
   }
 
-
   function getHAMedia(sourceTarget) {
     $.get(API + '/media/' + mediaId, function(_mediaObject) {
       assignMediaObject(_mediaObject);
@@ -236,19 +254,17 @@ $( document ).ready(function() {
   }
 
   function displayPbr() {
-    document.getElementById("pbr").style.display = "block";
-    document.getElementById("pbrLabel").style.display = "block";
+    document.getElementById('pbr').style.display = 'block';
+    document.getElementById('pbrLabel').style.display = 'block';
   }
 
   var user = null;
 
-
-
   function whoami(callback) {
     $.ajax(API + '/auth/whoami/' + window.localStorage.getItem('token'), {
-      type: "GET",
-     contentType: "application/json; charset=utf-8",
-     success: function(whoami) {
+      type: 'GET',
+      contentType: 'application/json; charset=utf-8',
+      success: function(whoami) {
         if (whoami.user) {
           // logged in
           // alert('logged in');
@@ -263,19 +279,18 @@ $( document ).ready(function() {
       xhrFields: {
         withCredentials: true
       },
-        crossDomain: true
+      crossDomain: true
     });
   }
 
   function updateTranscript(user) {
-
-    $.ajax( API + '/transcripts/' + transcriptObject._id, {
-      type: "PUT",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
+    $.ajax(API + '/transcripts/' + transcriptObject._id, {
+      type: 'PUT',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
       data: JSON.stringify({
         _id: transcriptObject._id,
-        label:  'Transcript for ' + mediaObject.label,
+        label: 'Transcript for ' + mediaObject.label,
         type: 'text',
         sort: 0,
         owner: user,
@@ -300,13 +315,12 @@ $( document ).ready(function() {
   }
 
   function saveTranscript(user) {
-
-    $.ajax( API + '/transcripts', {
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
+    $.ajax(API + '/transcripts', {
+      type: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
       data: JSON.stringify({
-        label:  'Transcript for ' + mediaObject.label,
+        label: 'Transcript for ' + mediaObject.label,
         type: 'text',
         owner: user,
         content: $('#content').val(),
@@ -354,5 +368,4 @@ $( document ).ready(function() {
     save();
     console.log('auto-saved');
   }, 60000);
-
 });
