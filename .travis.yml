@@ -1,6 +1,4 @@
 language: node_js
-# node_js:
-#   - '6'
 
 script: echo 1
 
@@ -11,10 +9,18 @@ deploy:
       secure: "XsAbVUnMJfdU6Lk+KIVVWMsYITqmN/wfFv2PmhBptLE7cNHWlx+lS/RDmOkIsqZmrg8D6kpo46QkF1Ur5qNvvWZa15jHpElOxL0v13yl+84OjgZBBJHmlPYJ/1/XG3TW+WxRd3WhxhkNlA2S5qrdmFFCQimDLU0x/01G6zgA51WYf7AaYwhCaw20KYLIYCXb2BhaJMA9Ci62Yitg58gprvmxUnAZFFI19cGStm3sI6NBgKJCMadnl415OcV+6Rlqh8pRBoF6lMGPIJpv0w9C+fnt6CAhW5MR+SmX1BYpkT16jscYs3nH4PE3hfuc7v7polO7GRTVc1G8icr+YosRUgEOfjrt+i1LxQfDpEbVD0Qw6FiJXjgw58ROVT00341xOKv1DlkPK6YB4nHkOO2wh+F8a8n3U/bwgRGy3TQGwk/FMYdxDs8oPSIjEMv6O986n+DcwbQ8Zlysh2+9ycYFoUCezYl/fwE/BfBzlcJcs2+16bPpCNteFW020v+NlHfvyEC66zX7HvTOj4FlY+B2Joe77eVInPZpjjXeWKt+sIQV5P4L/pUNvs1NgDYqFQZOAxno7ZzCOwWWDBHTrHkp5fwEvFRhT6qyFyZHcpml8HCsw4GJYvw4DeszYqlz7iHD6033KRLCvHObEQAcAAU4XEngTkalWlIOyBvNDyJHJ1Y="
     bucket: hyperaudio.net
     acl: public_read
-    # skip_cleanup: true
     upload-dir: maker
     on:
       branch: develop
+  - provider: s3
+    access_key_id: AKIAIS4ABNSYS5HWUFTA
+    secret_access_key:
+      secure: "XsAbVUnMJfdU6Lk+KIVVWMsYITqmN/wfFv2PmhBptLE7cNHWlx+lS/RDmOkIsqZmrg8D6kpo46QkF1Ur5qNvvWZa15jHpElOxL0v13yl+84OjgZBBJHmlPYJ/1/XG3TW+WxRd3WhxhkNlA2S5qrdmFFCQimDLU0x/01G6zgA51WYf7AaYwhCaw20KYLIYCXb2BhaJMA9Ci62Yitg58gprvmxUnAZFFI19cGStm3sI6NBgKJCMadnl415OcV+6Rlqh8pRBoF6lMGPIJpv0w9C+fnt6CAhW5MR+SmX1BYpkT16jscYs3nH4PE3hfuc7v7polO7GRTVc1G8icr+YosRUgEOfjrt+i1LxQfDpEbVD0Qw6FiJXjgw58ROVT00341xOKv1DlkPK6YB4nHkOO2wh+F8a8n3U/bwgRGy3TQGwk/FMYdxDs8oPSIjEMv6O986n+DcwbQ8Zlysh2+9ycYFoUCezYl/fwE/BfBzlcJcs2+16bPpCNteFW020v+NlHfvyEC66zX7HvTOj4FlY+B2Joe77eVInPZpjjXeWKt+sIQV5P4L/pUNvs1NgDYqFQZOAxno7ZzCOwWWDBHTrHkp5fwEvFRhT6qyFyZHcpml8HCsw4GJYvw4DeszYqlz7iHD6033KRLCvHObEQAcAAU4XEngTkalWlIOyBvNDyJHJ1Y="
+    bucket: hyperaud.io
+    acl: public_read
+    upload-dir: maker
+    on:
+      branch: master
 
 notifications:
   irc: chat.freenode.net#hyperaudio
